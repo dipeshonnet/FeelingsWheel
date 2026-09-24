@@ -1,0 +1,6 @@
+{
+  "name": "everyday-ai-feelings", "version": "1.0.0", "private": true, "type": "module", "packageManager": "pnpm@11.19.0",
+  "scripts": { "dev": "vite --host 127.0.0.1", "build": "tsc --noEmit && vite build", "preview": "vite preview --host 127.0.0.1", "test": "node --test tests/*.test.mjs", "dev:full": "node scripts/dev-server.mjs" },
+  "dependencies": { "react": "18.3.1", "react-dom": "18.3.1" },
+  "devDependencies": { "@types/react": "18.3.3", "@types/react-dom": "18.3.0", "@types/node": "22.5.5", "typescript": "5.5.3", "vite": "5.4.1" }
+}
