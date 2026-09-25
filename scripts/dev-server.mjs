@@ -1,9 +1,10 @@
 import { createServer as createHttpServer } from 'node:http';
 import { createServer as createViteServer } from 'vite';
 import { createMatcher } from '../server/matcher.mjs';
+import { saveSubmission } from '../server/submissions.mjs';
 import { existsSync } from 'node:fs';
 if (existsSync('.env')) process.loadEnvFile('.env');
-const handler = createMatcher();
+const handler = createMatcher({ saveSubmission });
 const api = createHttpServer(async (request, response) => {
   if (request.url !== '/.netlify/functions/match-feeling') { response.writeHead(404).end(); return; }
   try {
@@ -16,6 +17,6 @@ const api = createHttpServer(async (request, response) => {
 });
 api.listen(5181, '127.0.0.1');
 const vite = await createViteServer(); await vite.listen(); vite.printUrls();
-console.log('Local matching service ready. Descriptions are not logged.');
+console.log('Local matching service ready. Descriptions are not logged. Configure NETLIFY_DB_URL to save submissions.');
 async function close() { await vite.close(); api.close(); process.exit(0); }
 process.on('SIGINT', close); process.on('SIGTERM', close);

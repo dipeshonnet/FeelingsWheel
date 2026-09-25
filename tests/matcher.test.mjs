@@ -4,7 +4,7 @@ import { createMatcher } from '../server/matcher.mjs';
 import { emotions, emotionById, rotationFor, roots } from '../shared/emotions.mjs';
 const request = (text = 'I feel worried about tomorrow') => new Request('https://example.test/.netlify/functions/match-feeling', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) });
 const success = result => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(result) } }] }));
-const matcher = (fetchImpl, options = {}) => createMatcher({ fetchImpl, getKey: () => 'test-placeholder', ...options });
+const matcher = (fetchImpl, options = {}) => createMatcher({ fetchImpl, getKey: () => 'test-placeholder', saveSubmission: async () => {}, ...options });
 
 test('expanded wheel contains the supplied branches and unique ancestral IDs', () => {
   assert.equal(roots.length, 6); assert.equal(emotions.filter(e => e.depth === 1).length, 61); assert.equal(emotions.filter(e => e.depth === 2).length, 137); assert.equal(emotionById.size, 204);
@@ -31,14 +31,27 @@ test('every segment aligns its midpoint with the left-facing hand, including rep
 });
 test('valid English, Hindi and Hinglish input is sent as data; result stays in catalog', async () => {
   for (const text of ['I worry about tomorrow.', 'मुझे कल की चिंता है।', 'Kal ko lekar tension hai.']) {
+    const saved = [];
     const handler = matcher(async (url, options) => {
       assert.equal(url, 'https://api.groq.com/openai/v1/chat/completions');
       const body = JSON.parse(options.body); assert.equal(body.messages[1].content, text);
       assert.equal(body.response_format.json_schema.strict, true);
       return success({ status: 'match', emotionId: 'fear/anxious/worried' });
-    });
+    }, { saveSubmission: async value => saved.push(value) });
     const response = await handler(request(text)); assert.equal(response.status, 200); assert.equal((await response.json()).emotionId, 'fear/anxious/worried'); assert.equal(response.headers.get('cache-control'), 'no-store');
+    assert.deepEqual(saved, [text]);
   }
+});
+test('saves each valid submission before matching, including when Groq fails', async () => {
+  const saved = [];
+  const response = await matcher(async () => new Response('unavailable', { status: 502 }), { saveSubmission: async value => saved.push(value) })(request('  I feel worried  '));
+  assert.equal(response.status, 502);
+  assert.deepEqual(saved, ['I feel worried']);
+});
+test('does not send text to Groq if saving fails', async () => {
+  const response = await matcher(() => { throw new Error('Groq must not be called'); }, { saveSubmission: async () => { throw new Error('private database detail'); } })(request());
+  assert.equal(response.status, 503);
+  assert.ok(!(await response.text()).includes('private database detail'));
 });
 test('empty, non-string, oversized, malformed and wrong-method requests do not call Groq', async () => {
   const handler = matcher(() => { throw new Error('must not call'); });
