@@ -24,7 +24,7 @@ test('every segment aligns its midpoint with the left-facing hand, including rep
   let rotation = 0;
   for (const emotion of [...emotions, ...emotions].reverse()) {
     const next = rotationFor(rotation, emotion);
-    assert.ok(next >= rotation + 360);
+    assert.ok(Math.abs(next - rotation) <= 180);
     const alignment = ((next + (emotion.start + emotion.end) / 2) % 360 + 360) % 360;
     assert.ok(Math.abs(alignment - 270) < 0.00001); rotation = next;
   }

@@ -304,7 +304,8 @@ export const emotionById = new Map(emotions.map(emotion => [emotion.id, emotion]
 export const roots = emotions.filter(emotion => emotion.depth === 0);
 export function rotationFor(current, emotion) {
   const target = 270 - (emotion.start + emotion.end) / 2;
-  return current + 360 + ((target - current) % 360 + 360) % 360;
+  const delta = ((target - current + 180) % 360 + 360) % 360 - 180;
+  return current + delta;
 }
 export function emotionPath(emotion) {
   const names = [emotion.label];
