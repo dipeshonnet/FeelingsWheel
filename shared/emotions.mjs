@@ -1,4 +1,4 @@
-// Clockwise transcription of the supplied wheel. Every outer segment is 5°.
+// The original catalog plus the branches visible in the supplied/reference wheel.
 // IDs include the full ancestry: repeated labels intentionally remain distinct.
 const families = [
   { label: 'Anger', hindi: 'गुस्सा', color: '#ed806e', pale: '#f8d3d8', description: 'A response to a boundary, need, or expectation that feels crossed.', example: ['I feel angry because my boundaries were ignored.', 'मेरी सीमाओं को नज़रअंदाज़ किया गया, इसलिए मुझे गुस्सा आ रहा है।'], recognize: 'You may notice tension, heat, or an urge to argue.', actions: ['Pause before responding; give your body a moment to settle.', 'Name the boundary or need, then ask for one specific change.'], groups: [
@@ -123,20 +123,180 @@ const families = [
   ]}
 ];
 
+// Each entry is [family, group, Hindi group, definition, [leaf, Hindi, definition]...].
+// The linked site provides the wheel labels and its check-in guide, but no word
+// definitions. The definitions below are original explanatory copy.
+const referenceBranches = [
+  ['Happy', 'Respected', 'सम्मानित', 'Feeling that your dignity, views, or contribution are valued.',
+    ['Inspired', 'प्रेरित', 'Moved toward an idea or action by something meaningful.'], ['Valued', 'मूल्यवान', 'Feeling that your presence or contribution matters.']],
+  ['Happy', 'Grateful', 'कृतज्ञ', 'Appreciating a kindness, opportunity, or good thing in your life.',
+    ['Hopeful', 'आशावान', 'Sensing that a welcome possibility may still be ahead.'], ['Loving', 'स्नेहपूर्ण', 'Feeling warm care and connection toward someone.']],
+  ['Happy', 'Enthusiastic', 'उत्साही', 'Feeling lively interest and motivation about something.',
+    ['Impassioned', 'जोश से भरा', 'Feeling strongly moved and invested in what matters to you.'], ['Passionate', 'उत्कट', 'Feeling deep enthusiasm or devotion toward someone or something.']],
+  ['Happy', 'Creative', 'रचनात्मक', 'Feeling open to imagining, making, or trying something new.',
+    ['Energetic', 'ऊर्जावान', 'Feeling ready to move, act, or engage.'], ['Successful', 'सफल', 'Feeling satisfaction that your effort reached a goal.']],
+  ['Happy', 'Pleased', 'प्रसन्न', 'Feeling quietly glad about how something turned out.',
+    ['Delighted', 'बहुत प्रसन्न', 'Feeling bright pleasure at something welcome.'], ['Amused', 'मनोरंजित', 'Finding something pleasantly funny or entertaining.']],
+  ['Happy', 'Confident', 'आत्मविश्वासी', 'Trusting your ability to meet a situation, even without certainty.',
+    ['Courageous', 'साहसी', 'Feeling willing to act despite fear or uncertainty.'], ['Proud', 'गर्वित', 'Feeling satisfaction in your effort, growth, or achievement.']],
+  ['Happy', 'Interested', 'रुचि', 'Feeling drawn to pay attention and learn more.',
+    ['Curious', 'जिज्ञासु', 'Wanting to explore or understand something unfamiliar.'], ['Inquisitive', 'खोजी', 'Wanting to ask questions and investigate further.']],
+  ['Happy', 'Playful', 'खिलंदड़ा', 'Feeling light and open to fun or spontaneity.',
+    ['Cheeky', 'शरारती', 'Feeling mischievous in a lighthearted way.'], ['Aroused', 'उत्तेजित', 'Feeling physically or emotionally stimulated; context determines whether this is sexual.']],
+  ['Happy', 'Trusting', 'भरोसेमंद महसूस करना', 'Feeling able to rely on someone or something.',
+    ['Powerful', 'सशक्त', 'Feeling capable of influencing what happens next.'], ['Accepted', 'स्वीकृत', 'Feeling welcomed as you are.']],
+  ['Happy', 'Content', 'संतुष्ट', 'Feeling at ease with the present moment.',
+    ['Satisfied', 'तृप्त', 'Feeling that a need or expectation has been met.'], ['Peaceful', 'शांत', 'Feeling calm and free from immediate inner conflict.']],
+  ['Happy', 'Joyful', 'आनंदित', 'Feeling bright pleasure and gladness.',
+    ['Ecstatic', 'परमानंदित', 'Feeling an intense surge of joy.'], ['Overjoyed', 'अत्यंत खुश', 'Feeling so happy that the delight seems hard to contain.']],
+  ['Anger', 'Irritable', 'चिड़चिड़ा', 'Feeling easily bothered or quick to react to small disruptions.',
+    ['Aggravated', 'और चिढ़ा हुआ', 'Feeling more irritated because a problem continues or grows.'], ['Irked', 'खिन्न', 'Feeling mildly annoyed by something specific.']],
+  ['Anger', 'Annoyed', 'नाराज़', 'Feeling bothered by something inconvenient or unwelcome.',
+    ['Furious', 'प्रचंड क्रोधित', 'Feeling very intense anger about what happened.'], ['Bothered', 'परेशान', 'Feeling unsettled or irritated by something.']],
+  ['Anger', 'Envious', 'ईर्ष्यालु', 'Wanting an advantage or experience someone else has.',
+    ['Bitter', 'कटु', 'Feeling lingering anger about perceived unfairness.'], ['Jealous', 'ईर्ष्यालु', 'Fearing the loss of a valued bond or position to someone else.']],
+  ['Anger', 'Bitter', 'कटु', 'Carrying lasting anger after hurt or disappointment.',
+    ['Violated', 'सीमा टूटी महसूस करना', 'Feeling that an important boundary or right was crossed.'], ['Indignant', 'अन्याय से क्रोधित', 'Feeling anger at treatment you see as unfair.']],
+  ['Anger', 'Critical', 'आलोचनात्मक', 'Focusing on faults or unmet standards.',
+    ['Dismissive', 'उपेक्षापूर्ण', 'Feeling inclined to brush aside another view or concern.'], ['Skeptical', 'संदेहपूर्ण', 'Doubting a claim until there is stronger reason to trust it.']],
+  ['Anger', 'Aggressive', 'आक्रामक', 'Feeling an urge to push back forcefully.',
+    ['Hostile', 'विरोधपूर्ण', 'Feeling openly opposed to a person or situation.'], ['Provoked', 'उकसाया हुआ', 'Feeling pushed toward anger by repeated or pointed actions.']],
+  ['Anger', 'Mad', 'गुस्से में', 'Feeling strong anger about a situation.',
+    ['Infuriated', 'बेहद गुस्से में', 'Feeling intensely angry, often after a repeated frustration.'], ['Furious', 'प्रचंड क्रोधित', 'Feeling a powerful surge of anger.']],
+  ['Anger', 'Disrespected', 'अनादर महसूस करना', 'Feeling that your dignity, voice, or boundary was disregarded.',
+    ['Humiliated', 'अपमानित', 'Feeling painfully exposed or put down, especially before others.'], ['Ridiculed', 'उपहास का शिकार', 'Feeling mocked for something sincere or personal.']],
+  ['Anger', 'Let Down', 'निराश किया गया', 'Feeling disappointed because someone did not meet an important expectation.',
+    ['Resentful', 'मन में रोष', 'Holding anger about a hurt or imbalance that has not been resolved.'], ['Betrayed', 'विश्वासघात महसूस करना', 'Feeling hurt and angry after a trusted person breaks your trust.']],
+  ['Anger', 'Frustrated', 'झुंझलाया हुआ', 'Feeling blocked from something you are trying to do.',
+    ['Rageful', 'उग्र गुस्से में', 'Feeling anger so intense it is difficult to contain.'], ['Annoyed', 'नाराज़', 'Feeling bothered by an obstacle or repeated inconvenience.']],
+  ['Sad', 'Hurt', 'आहत', 'Feeling emotional pain after loss, rejection, or unkind treatment.',
+    ['Fragile', 'नाज़ुक', 'Feeling especially tender or easily hurt right now.'], ['Victimized', 'अन्याय का शिकार', 'Feeling repeatedly targeted or treated unfairly.']],
+  ['Sad', 'Depressed', 'बहुत उदास', 'Feeling persistently low or weighed down; the word here describes a feeling, not a diagnosis.',
+    ['Worthless', 'बेकार महसूस करना', 'Feeling as though you have no value; this feeling is not a fact.'], ['Unmotivated', 'प्रेरणा की कमी', 'Finding it hard to begin or care about a task.']],
+  ['Sad', 'Guilty', 'अपराधबोध', 'Feeling that your action went against your values or hurt someone.',
+    ['Remorseful', 'पछतावे में', 'Regretting an action and wanting to make amends.'], ['Ashamed', 'शर्मिंदा', 'Feeling that a mistake reflects badly on your whole self.']],
+  ['Sad', 'Sorrow', 'शोक', 'Feeling deep sadness about loss or suffering.',
+    ['Grief', 'गहरा शोक', 'The pain and adjustment that follow a meaningful loss.'], ['Despair', 'गहरी निराशा', 'Feeling unable to see a hopeful way forward.']],
+  ['Sad', 'Numb', 'सुन्न', 'Feeling emotionally muted or disconnected, sometimes after stress.',
+    ['Empty', 'खालीपन', 'Feeling an absence of meaning or emotional connection.'], ['Powerless', 'बेबस', 'Feeling unable to influence an important outcome.']],
+  ['Sad', 'Lonely', 'अकेला', 'Missing the connection or understanding you need.',
+    ['Abandoned', 'छोड़ दिया गया', 'Feeling that needed support or connection has gone away.'], ['Isolated', 'अलग-थलग', 'Feeling cut off from others, physically or emotionally.']],
+  ['Fear', 'Fearful', 'भयभीत', 'Sensing danger or a possible threat.',
+    ['Frightened', 'डरा हुआ', 'Feeling fear in response to a perceived threat.'], ['Nervous', 'घबराया हुआ', 'Feeling unsettled while anticipating an uncertain situation.']],
+  ['Fear', 'Anxious', 'चिंतित', 'Anticipating a difficult or uncertain outcome.',
+    ['Panicked', 'घबराहट से भर गया', 'Feeling a sudden, intense surge of fear.'], ['Overwhelmed', 'अभिभूत', 'Feeling that current demands exceed what you can manage right now.']],
+  ['Fear', 'Insecure', 'असुरक्षित', 'Doubting your ability, place, or support.',
+    ['Inadequate', 'पर्याप्त न लगना', 'Feeling unable to meet a demand or standard.'], ['Inferior', 'कमतर', 'Feeling less capable or worthy than others.']],
+  ['Fear', 'Rejected', 'अस्वीकृत', 'Feeling unwanted or excluded from a connection.',
+    ['Excluded', 'बाहर रखा गया', 'Feeling left out of a group or opportunity.'], ['Persecuted', 'सताया हुआ', 'Feeling persistently targeted or unfairly treated.']],
+  ['Fear', 'Helpless', 'असहाय', 'Feeling unable to protect yourself or change what is happening.',
+    ['Lost', 'दिशाहीन', 'Feeling unsure where to turn or what to do next.'], ['Insignificant', 'महत्वहीन', 'Feeling that your needs or presence do not count.']],
+  ['Fear', 'Worried', 'फिक्रमंद', 'Thinking repeatedly about a possible problem.',
+    ['Threatened', 'खतरे में', 'Feeling that something important to you may be harmed.'], ['Intimidated', 'भयभीत और दबा हुआ', 'Feeling less able to speak or act because someone or something seems powerful.']],
+  ['Disgust', 'Contempt', 'तिरस्कार', 'Feeling that someone or something is beneath respect.',
+    ['Disdain', 'तिरस्कार', 'Feeling dismissive scorn toward someone or something.'], ['Scornful', 'उपहासपूर्ण', 'Feeling contempt that may come out as mocking.']],
+  ['Disgust', 'Repelled', 'घिन से दूर हटना', 'Feeling a strong urge to move away from something unpleasant.',
+    ['Horrified', 'स्तब्ध और भयभीत', 'Feeling shocked and deeply disturbed by what you perceive.'], ['Nauseated', 'मिचली आना', 'Feeling sickened, physically or figuratively, by something.']],
+  ['Disgust', 'Disapproving', 'असहमति जताना', 'Feeling that an action conflicts with your values or standards.',
+    ['Judgmental', 'निर्णयात्मक', 'Making a broad negative judgment before fully understanding.'], ['Embarrassed', 'शर्मिंदा', 'Feeling self-conscious after an awkward or exposed moment.']],
+  ['Disgust', 'Disappointed', 'निराश', 'Feeling let down when reality falls short of hope.',
+    ['Hesitant', 'हिचकिचाता हुआ', 'Feeling unsure whether to approach or proceed.'], ['Appalled', 'स्तब्ध और क्षुब्ध', 'Feeling shocked by something you find deeply wrong.']],
+  ['Surprise', 'Excited', 'उत्साहित', 'Feeling energized by something new or anticipated.',
+    ['Eager', 'उत्सुक', 'Looking forward keenly to what comes next.'], ['Amazed', 'चकित', 'Feeling wonder because something exceeds expectations.']],
+  ['Surprise', 'Awe', 'विस्मय', 'Feeling wonder before something vast or extraordinary.',
+    ['Astonished', 'अचंभित', 'Feeling strongly surprised by an unexpected event.'], ['Shocked', 'स्तब्ध', 'Feeling stunned by sudden or unexpected news.']],
+  ['Surprise', 'Confused', 'उलझन', 'Feeling unable to make sense of what is happening yet.',
+    ['Perplexed', 'हैरान-परेशान', 'Feeling puzzled because the pieces do not fit together.'], ['Disillusioned', 'मोहभंग', 'Feeling disappointed when reality challenges a trusted belief.']],
+  ['Surprise', 'Startled', 'चौंका हुआ', 'Reacting suddenly to something unexpected.',
+    ['Dismayed', 'हताश और हैरान', 'Feeling unsettled disappointment at an unwelcome surprise.'], ['Moved', 'भावविभोर', 'Feeling emotionally touched by something meaningful.']]
+];
+
+const referenceContexts = {
+  'Happy/Respected': ['my idea was heard in the meeting', 'बैठक में मेरी बात सुनी गई'],
+  'Happy/Grateful': ['a friend helped me through a hard day', 'एक दोस्त ने मुश्किल दिन में मेरा साथ दिया'],
+  'Happy/Enthusiastic': ['we began a project I care about', 'हमने मेरे प्रिय काम की शुरुआत की'],
+  'Happy/Creative': ['I found a new way to solve the problem', 'मुझे समस्या हल करने का नया तरीका मिला'],
+  'Happy/Pleased': ['the day went better than I expected', 'दिन मेरी उम्मीद से बेहतर गुज़रा'],
+  'Happy/Confident': ['my preparation helped me face the challenge', 'मेरी तैयारी ने चुनौती का सामना करने में मदद की'],
+  'Happy/Interested': ['someone introduced me to a new subject', 'किसी ने मुझे नया विषय बताया'],
+  'Happy/Playful': ['we shared a lighthearted moment', 'हमने साथ में हल्का-फुल्का पल बिताया'],
+  'Happy/Trusting': ['someone kept an important promise', 'किसी ने अपना अहम वादा निभाया'],
+  'Happy/Content': ['I could rest without rushing to the next task', 'मैं अगले काम की जल्दी किए बिना आराम कर सका'],
+  'Happy/Joyful': ['we celebrated good news together', 'हमने अच्छी खबर का साथ में जश्न मनाया'],
+  'Anger/Irritable': ['small interruptions kept breaking my focus', 'छोटी-छोटी रुकावटें मेरा ध्यान तोड़ती रहीं'],
+  'Anger/Annoyed': ['someone ignored my request again', 'किसी ने फिर मेरी बात अनसुनी की'],
+  'Anger/Envious': ['someone else received the opportunity I wanted', 'किसी और को वह अवसर मिला जो मैं चाहता था'],
+  'Anger/Bitter': ['the unfair situation went unresolved', 'अन्याय वाली बात का समाधान नहीं हुआ'],
+  'Anger/Critical': ['the same avoidable mistake happened again', 'वही टाली जा सकने वाली गलती फिर हुई'],
+  'Anger/Aggressive': ['the discussion turned into a personal attack', 'बातचीत निजी हमले में बदल गई'],
+  'Anger/Mad': ['I was blamed for something I did not do', 'जो मैंने नहीं किया उसका दोष मुझे दिया गया'],
+  'Anger/Disrespected': ['someone mocked me in front of others', 'किसी ने सबके सामने मेरा मज़ाक उड़ाया'],
+  'Anger/Let Down': ['a person I trusted broke their promise', 'जिस पर भरोसा था उसने वादा तोड़ा'],
+  'Anger/Frustrated': ['repeated delays stopped my work', 'बार-बार की देरी से मेरा काम रुका'],
+  'Sad/Hurt': ['my concern was dismissed', 'मेरी चिंता को अनदेखा किया गया'],
+  'Sad/Depressed': ['even ordinary tasks felt unusually hard', 'रोज़मर्रा के काम भी असामान्य रूप से मुश्किल लगे'],
+  'Sad/Guilty': ['I spoke more harshly than I intended', 'मैंने चाहने से अधिक कठोर बात कही'],
+  'Sad/Sorrow': ['I thought about someone I had lost', 'मैंने खोए हुए अपने किसी प्रिय व्यक्ति को याद किया'],
+  'Sad/Numb': ['too much happened at once to take in', 'एक साथ बहुत कुछ हुआ और समझना मुश्किल लगा'],
+  'Sad/Lonely': ['I wanted to talk and found no one nearby', 'मैं बात करना चाहता था पर कोई पास नहीं था'],
+  'Fear/Fearful': ['I heard an unfamiliar sound outside', 'मुझे बाहर अनजानी आवाज़ सुनाई दी'],
+  'Fear/Anxious': ['I waited for an important answer', 'मैं एक ज़रूरी जवाब का इंतज़ार कर रहा था'],
+  'Fear/Insecure': ['I joined a group where I knew no one', 'मैं ऐसे समूह में गया जहाँ किसी को नहीं जानता था'],
+  'Fear/Rejected': ['I was left out of the invitation', 'मुझे निमंत्रण से बाहर रखा गया'],
+  'Fear/Helpless': ['a decision affecting me was made without me', 'मुझसे जुड़ा फैसला मेरे बिना हुआ'],
+  'Fear/Worried': ['I imagined what might go wrong tomorrow', 'मैं कल क्या गलत हो सकता है यह सोचता रहा'],
+  'Disgust/Contempt': ['I watched someone repeatedly treat others cruelly', 'मैंने किसी को बार-बार दूसरों से क्रूरता करते देखा'],
+  'Disgust/Repelled': ['I encountered something deeply unpleasant', 'मेरे सामने कुछ बहुत अप्रिय आया'],
+  'Disgust/Disapproving': ['I saw someone ignore an agreed boundary', 'मैंने किसी को तय सीमा की अनदेखी करते देखा'],
+  'Disgust/Disappointed': ['reality fell short of a promise', 'हकीकत किए गए वादे से कम निकली'],
+  'Surprise/Excited': ['a new opportunity appeared unexpectedly', 'अचानक एक नया अवसर आया'],
+  'Surprise/Awe': ['I looked up at the vast night sky', 'मैंने विशाल रात के आसमान को देखा'],
+  'Surprise/Confused': ['I received two opposite explanations', 'मुझे दो उलटी बातें बताई गईं'],
+  'Surprise/Startled': ['a sudden sound broke the silence', 'अचानक एक आवाज़ ने सन्नाटा तोड़ा']
+};
+const firstSteps = {
+  Happy: 'Take a moment to appreciate what feels good.',
+  Anger: 'Notice the boundary or expectation that feels crossed.',
+  Sad: 'Give the feeling some room and seek support if it helps.',
+  Fear: 'Check what is happening now and identify one small step.',
+  Disgust: 'Step back and name the value or boundary involved.',
+  Surprise: 'Pause before deciding what the event means.'
+};
+for (const [familyLabel, groupLabel, groupHindi, definition, ...sourceLeaves] of referenceBranches) {
+  const family = families.find(item => item.label === familyLabel);
+  const existing = family.groups.find(group => group[0] === groupLabel);
+  const [context, hindiContext] = referenceContexts[`${familyLabel}/${groupLabel}`];
+  const example = `I felt ${groupLabel.toLowerCase()} when ${context}.`;
+  const hindiExample = `जब ${hindiContext}, मुझे ${groupHindi} महसूस हुआ।`;
+  const action = firstSteps[familyLabel];
+  const group = existing || [groupLabel, groupHindi, definition, example, hindiExample, family.recognize, action, []];
+  if (!existing) family.groups.push(group);
+  else group[2] = definition;
+  for (const [leafLabel, hindi, meaning] of sourceLeaves) {
+    const leaf = group[7].find(item => item[0] === leafLabel);
+    if (leaf) { leaf[5] = meaning; continue; }
+    group[7].push([leafLabel, hindi,
+      `I felt ${leafLabel.toLowerCase()} when ${context}.`,
+      `जब ${hindiContext}, मुझे ${hindi} महसूस हुआ।`, family.recognize, meaning]);
+  }
+}
+
 const slug = value => value.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 export const emotions = [];
 let angle = -30;
+const leafCount = families.reduce((sum, family) => sum + family.groups.reduce((count, group) => count + group[7].length, 0), 0);
+const leafSpan = 360 / leafCount;
 for (const family of families) {
   const familyId = slug(family.label);
-  const end = angle + family.groups.length * 10;
+  const end = angle + family.groups.reduce((sum, group) => sum + group[7].length * leafSpan, 0);
   emotions.push({ id: familyId, label: family.label, hindi: family.hindi, family: familyId, parent: null, depth: 0, start: angle, end, color: family.color, description: family.description, examples: [family.example, [family.groups[0][3], family.groups[0][4]]], recognize: family.recognize, actions: family.actions });
   for (const [label, hindi, description, en, hi, recognize, action, leaves] of family.groups) {
     const groupId = `${familyId}/${slug(label)}`;
-    const group = { id: groupId, label, hindi, family: familyId, parent: familyId, depth: 1, start: angle, end: angle + 10, color: family.color, description, examples: [[en, hi], family.example], recognize, actions: [action, ...family.actions.slice(0, 1)] };
+    const group = { id: groupId, label, hindi, family: familyId, parent: familyId, depth: 1, start: angle, end: angle + leaves.length * leafSpan, color: family.color, description, examples: [[en, hi], family.example], recognize, actions: [action, ...family.actions.slice(0, 1)] };
     emotions.push(group);
-    for (const [leafLabel, leafHindi, leafEn, leafHi, leafRecognize] of leaves) {
-      emotions.push({ id: `${groupId}/${slug(leafLabel)}`, label: leafLabel, hindi: leafHindi, family: familyId, parent: groupId, depth: 2, start: angle, end: angle + 5, color: family.pale, description: leafRecognize, examples: [[leafEn, leafHi], [en, hi]], recognize: leafRecognize, actions: [action, ...family.actions.slice(0, 1)] });
-      angle += 5;
+    for (const [leafLabel, leafHindi, leafEn, leafHi, leafRecognize, leafDefinition] of leaves) {
+      emotions.push({ id: `${groupId}/${slug(leafLabel)}`, label: leafLabel, hindi: leafHindi, family: familyId, parent: groupId, depth: 2, start: angle, end: angle + leafSpan, color: family.pale, description: leafDefinition || leafRecognize, examples: [[leafEn, leafHi], [en, hi]], recognize: leafRecognize, actions: [action, ...family.actions.slice(0, 1)] });
+      angle += leafSpan;
     }
   }
 }

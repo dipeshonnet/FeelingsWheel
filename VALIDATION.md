@@ -1,4 +1,14 @@
-# Validation — September 24, 2026
+# Validation — September 25, 2026
+
+## September 25 expansion
+
+- Compared the linked reference image with the supplied image and merged its missing branches into the existing catalog. The wheel now has 204 selectable entries: six families, 61 middle-ring feelings, and 137 outer-ring feelings.
+- Added original definitions and contextual English–Hindi examples for the reference branches. Existing duplicate words remain distinguishable by their ancestry.
+- Updated segment angles so all leaves cover the circle without gaps despite varying group sizes.
+- Eight automated checks pass, including catalog coverage, English–Hindi examples, continuous geometry, pointer alignment, and server matching behavior. The TypeScript check and production Vite build pass.
+- Verified the expanded wheel and a newly added feeling in the local browser. The wheel is denser than the original; the selector helps explore narrow segments.
+
+## Earlier baseline
 
 ## Passed
 

@@ -7,9 +7,9 @@ function wedge(inner: number, outer: number, start: number, end: number) {
   const a = point(outer, start), b = point(outer, end), c = point(inner, end), d = point(inner, start);
   return `M${a} A${outer},${outer} 0 0 1 ${b} L${c} ${inner ? `A${inner},${inner} 0 0 0 ${d}` : ''} Z`;
 }
-export const Wheel = memo(function Wheel({ rotation, selected, onSelect, disabled, zoom }: { rotation: number; selected: Emotion | null; onSelect: (emotion: Emotion) => void; disabled: boolean; zoom: number }) {
-  return <div className="wheel-viewport" tabIndex={0} aria-label="Feelings wheel. Use the feeling selector below for keyboard access. When zoomed, scroll to explore.">
-    <div className="wheel-stage" style={{ width: `${zoom * 100}%` }}>
+export const Wheel = memo(function Wheel({ rotation, selected, onSelect, disabled }: { rotation: number; selected: Emotion | null; onSelect: (emotion: Emotion) => void; disabled: boolean }) {
+  return <div className="wheel-viewport">
+    <div className="wheel-stage">
       <div className="wheel-rotor" style={{ transform: `rotate(${rotation}deg)` }}>
         <svg viewBox="0 0 1000 1000" role="img" aria-label={selected ? `Selected feeling: ${emotionPath(selected)}` : 'Three-ring feelings wheel: Anger, Disgust, Sad, Happy, Surprise, and Fear'}>
           {emotions.map(emotion => {
@@ -18,7 +18,7 @@ export const Wheel = memo(function Wheel({ rotation, selected, onSelect, disable
             const textRadius = emotion.depth === 0 ? 108 : (inner + outer) / 2;
             const [x, y] = point(textRadius, middle);
             const normalized = (middle + 360) % 360;
-            const turn = emotion.depth === 0 ? middle : middle - 90 + (normalized > 180 ? 180 : 0);
+            const turn = middle - 90 + (normalized > 180 ? 180 : 0);
             const active = selected?.id === emotion.id;
             return <g key={emotion.id} className={`segment depth-${emotion.depth}${active ? ' selected' : ''}${disabled ? ' disabled' : ''}`} onClick={() => !disabled && onSelect(emotion)}>
               <title>{emotionPath(emotion)}</title>

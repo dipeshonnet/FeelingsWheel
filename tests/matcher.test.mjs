@@ -6,17 +6,19 @@ const request = (text = 'I feel worried about tomorrow') => new Request('https:/
 const success = result => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(result) } }] }));
 const matcher = (fetchImpl, options = {}) => createMatcher({ fetchImpl, getKey: () => 'test-placeholder', ...options });
 
-test('reference wheel has 6 families, 36 groups, 72 leaves and unique ancestral IDs', () => {
-  assert.equal(roots.length, 6); assert.equal(emotions.filter(e => e.depth === 1).length, 36); assert.equal(emotions.filter(e => e.depth === 2).length, 72); assert.equal(emotionById.size, 114);
+test('expanded wheel contains the supplied branches and unique ancestral IDs', () => {
+  assert.equal(roots.length, 6); assert.equal(emotions.filter(e => e.depth === 1).length, 61); assert.equal(emotions.filter(e => e.depth === 2).length, 137); assert.equal(emotionById.size, 204);
   const leaves = emotions.filter(e => e.depth === 2);
-  assert.equal(leaves.reduce((sum, e) => sum + e.end - e.start, 0), 360);
-  for (const [index, emotion] of leaves.entries()) { assert.equal(emotion.end - emotion.start, 5); if (index) assert.equal(emotion.start, leaves[index - 1].end); }
+  assert.ok(Math.abs(leaves.reduce((sum, e) => sum + e.end - e.start, 0) - 360) < 0.000001);
+  for (const [index, emotion] of leaves.entries()) { assert.ok(Math.abs(emotion.end - emotion.start - 360 / leaves.length) < 0.000001); if (index) assert.equal(emotion.start, leaves[index - 1].end); }
   for (const emotion of emotions) {
     assert.equal(emotion.examples.length, 2); assert.ok(emotion.actions.length >= 2);
     for (const example of emotion.examples) { assert.ok(example[0].length > 15); assert.match(example[1], /[\u0900-\u097f]/); }
-    if (emotion.parent) { const parent = emotionById.get(emotion.parent); assert.ok(parent); assert.ok(emotion.start >= parent.start && emotion.end <= parent.end); }
+    if (emotion.parent) { const parent = emotionById.get(emotion.parent); assert.ok(parent); assert.ok(emotion.start >= parent.start - 0.000001 && emotion.end <= parent.end + 0.000001); }
   }
   assert.equal(emotions.filter(e => e.label === 'Inadequate').length, 2);
+  for (const id of ['happy/respected/valued', 'happy/playful/aroused', 'anger/let-down/betrayed', 'sad/sorrow/grief', 'fear/helpless/lost', 'disgust/contempt/scornful', 'surprise/startled/moved']) assert.ok(emotionById.has(id), id);
+  assert.notEqual(emotionById.get('happy/respected/valued').description, emotionById.get('happy/respected/valued').recognize);
 });
 test('every segment aligns its midpoint under the fixed hand, including repeat selections', () => {
   let rotation = 0;
