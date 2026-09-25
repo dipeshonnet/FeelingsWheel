@@ -12,7 +12,7 @@
     "dev:full": "node scripts/dev-server.mjs"
   },
   "dependencies": {
-    "@netlify/database": "^2.0.1",
+    "postgres": "^3.4.9",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },

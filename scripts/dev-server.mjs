@@ -17,6 +17,6 @@ const api = createHttpServer(async (request, response) => {
 });
 api.listen(5181, '127.0.0.1');
 const vite = await createViteServer(); await vite.listen(); vite.printUrls();
-console.log('Local matching service ready. Descriptions are not logged. Configure NETLIFY_DB_URL to save submissions.');
+console.log('Local matching service ready. Descriptions are not logged. Configure SUPABASE_DB_URL to save submissions.');
 async function close() { await vite.close(); api.close(); process.exit(0); }
 process.on('SIGINT', close); process.on('SIGTERM', close);
