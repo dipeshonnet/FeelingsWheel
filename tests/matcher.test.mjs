@@ -20,13 +20,13 @@ test('expanded wheel contains the supplied branches and unique ancestral IDs', (
   for (const id of ['happy/respected/valued', 'happy/playful/aroused', 'anger/let-down/betrayed', 'sad/sorrow/grief', 'fear/helpless/lost', 'disgust/contempt/scornful', 'surprise/startled/moved']) assert.ok(emotionById.has(id), id);
   assert.notEqual(emotionById.get('happy/respected/valued').description, emotionById.get('happy/respected/valued').recognize);
 });
-test('every segment aligns its midpoint under the fixed hand, including repeat selections', () => {
+test('every segment aligns its midpoint with the left-facing hand, including repeat selections', () => {
   let rotation = 0;
   for (const emotion of [...emotions, ...emotions].reverse()) {
     const next = rotationFor(rotation, emotion);
     assert.ok(next >= rotation + 360);
     const alignment = ((next + (emotion.start + emotion.end) / 2) % 360 + 360) % 360;
-    assert.ok(alignment < 0.00001); rotation = next;
+    assert.ok(Math.abs(alignment - 270) < 0.00001); rotation = next;
   }
 });
 test('valid English, Hindi and Hinglish input is sent as data; result stays in catalog', async () => {
