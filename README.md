@@ -33,7 +33,7 @@ Open **http://127.0.0.1:5180**. Without a key, the wheel, selector, examples, an
 
 ## How it works
 
-- Desktop uses a 3:1 wheel-to-panel layout when space permits; mobile stacks input, wheel, and guidance.
+- Desktop gives the wheel a little more than half the layout width; mobile stacks input, wheel, and guidance.
 - The hand stays fixed while the wheel rotates to the selected segment's midpoint over three seconds. Reduced-motion settings remove the rotation animation.
 - Repeated words have ancestry-based IDs (for example, `fear/insecure/inadequate` and `fear/rejected/inadequate`).
 - Clicking a segment or using the keyboard-accessible selector explores the same content without an AI call.
