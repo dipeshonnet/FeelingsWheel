@@ -18,10 +18,11 @@ export function createMatcher({ fetchImpl = globalThis.fetch, getKey = () => pro
     if (!input || typeof input.text !== 'string' || !input.text.trim() || input.text.length > 1000) return json({ error: 'Please enter a description between 1 and 1,000 characters.' }, 400);
     const key = getKey()?.trim();
     if (!key) return json({ error: 'AI matching isn’t set up yet. You can still explore every feeling using the wheel or selector.' }, 503);
-    if (typeof saveSubmission !== 'function') return json({ error: 'Saving isn’t set up yet. Please try again later.' }, 503);
     const description = input.text.trim();
-    try { await saveSubmission(description); }
-    catch { return json({ error: 'Your words couldn’t be saved. Please try again later.' }, 503); }
+    if (typeof saveSubmission === 'function') {
+      try { await saveSubmission(description); }
+      catch { /* Saving is optional; continue matching without a visitor-facing error. */ }
+    }
     const abort = new AbortController();
     const timeout = setTimeout(() => abort.abort(), timeoutMs);
     try {

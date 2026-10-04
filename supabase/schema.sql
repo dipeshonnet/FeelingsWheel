@@ -9,4 +9,5 @@ create table if not exists private.feeling_submissions (
   text text not null check (char_length(text) between 1 and 1000)
 );
 
+alter table private.feeling_submissions enable row level security;
 revoke all on private.feeling_submissions from anon, authenticated;

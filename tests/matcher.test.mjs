@@ -48,10 +48,20 @@ test('saves each valid submission before matching, including when Groq fails', a
   assert.equal(response.status, 502);
   assert.deepEqual(saved, ['I feel worried']);
 });
-test('does not send text to Groq if saving fails', async () => {
-  const response = await matcher(() => { throw new Error('Groq must not be called'); }, { saveSubmission: async () => { throw new Error('private database detail'); } })(request());
-  assert.equal(response.status, 503);
-  assert.ok(!(await response.text()).includes('private database detail'));
+test('continues matching without a storage error when saving fails or is unavailable', async () => {
+  for (const saveSubmission of [undefined, async () => { throw new Error('private database detail'); }]) {
+    for (const result of [{ status: 'match', emotionId: 'fear/anxious/worried' }, { status: 'clarify', emotionId: null }]) {
+      let calls = 0;
+      const response = await matcher(async (url, options) => {
+        calls++;
+        assert.equal(JSON.parse(options.body).messages[1].content, 'I feel worried');
+        return success(result);
+      }, { saveSubmission })(request('  I feel worried  '));
+      assert.equal(calls, 1);
+      assert.equal(response.status, 200);
+      assert.deepEqual(await response.json(), result);
+    }
+  }
 });
 test('empty, non-string, oversized, malformed and wrong-method requests do not call Groq', async () => {
   const handler = matcher(() => { throw new Error('must not call'); });
