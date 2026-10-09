@@ -1,5 +1,9 @@
 # Feelings Wheel · Everyday AI
 
+This folder is the standalone [FeelingsWheel repository](https://github.com/dipeshonnet/FeelingsWheel). It contains only the Feelings Wheel frontend, emotion catalog, matching backend, Supabase schema, tests, and deployment configuration. The Everyday AI marketing website belongs in the separate `EverydayAIWebsite` project and [EverydayAI repository](https://github.com/dipeshonnet/EverydayAI).
+
+The Everyday AI branding and links point to the main website; they do not import its code. All application imports and build inputs are local to this folder or declared in `package.json`. Run commands from this folder, and leave the Netlify base directory empty.
+
 An interactive reflection tool for [feelings.everydayai.work](https://feelings.everydayai.work/). Explore 204 feelings across six families, describe what is on your mind for a possible AI match, and read examples in English with Hindi or Spanish. Each feeling has a short explanation and gentle suggestions for what to try next. You can use the wheel without AI matching.
 
 The catalog combines the original wheel with branches from the [reference wheel](https://feelingswheel.netlify.app/) and supplied image. Definitions, examples, and guidance are original copy. AI matching uses Groq; the guidance is written in advance. This is a reflection aid, not a clinical assessment.
@@ -46,6 +50,10 @@ Open **http://127.0.0.1:5180**. Without a key, the wheel, selector, examples, an
 - A Netlify rate-limit rule allows 10 requests per minute per IP and domain. Groq account quotas also apply; no frontend code can bypass them.
 - Some reference labels describe responses or states rather than emotions. They are preserved as requested. This is a reflection aid, not a clinical assessment.
 
+## Frontend maintenance
+
+`src/main.tsx` assembles the page and owns the draft text and language preference. `useFeelingCheckIn.ts` owns selection, rotation, matching, and timer cleanup; `matchFeeling.mjs` handles transport and validates responses before state is updated. `WheelSection.tsx` and `GuidancePanel.tsx` are memoized with stable callbacks so typing does not rerender them. Fixed SVG paths, label positions, and ancestry titles are calculated once in `wheelGeometry.mjs`; selector options are also prepared once.
+
 ## Checks
 
 ```sh
@@ -53,7 +61,7 @@ npm test
 npm run build
 ```
 
-The automated checks cover hierarchy and label counts, English–Hindi content, every pointer angle, repeat rotations, request validation, structured responses, clarification, missing configuration, timeouts, invalid output, and upstream rate limits.
+The automated checks cover hierarchy and label counts, English–Hindi content, every pointer angle, repeat rotations, cached label positions, frontend response validation and cancellation during parsing, request validation, structured responses, clarification, missing configuration, timeouts, invalid output, and upstream rate limits.
 
 Optional live check (uses a small amount of your Groq quota): set `GROQ_API_KEY` in your shell and run `node scripts/live-check.mjs`. It sends synthetic English, Hindi, Hinglish, and ambiguous examples and prints only status and matched emotion IDs.
 

@@ -5,3 +5,7 @@ dist/
 .env.*
 !.env.example
 *.zip
+.pnpm-store/
+devserver*.log
+devserver.err
+devserver.out

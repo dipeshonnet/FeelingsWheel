@@ -1,4 +1,4 @@
-import type { Emotion } from './Wheel';
+import type { Emotion } from '../shared/emotions.mjs';
 
 // Spanish names are shared by the result panel and its example sentences.
 const names: Record<string, string> = {

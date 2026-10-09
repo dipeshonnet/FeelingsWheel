@@ -1,5 +1,6 @@
 {
-  "name": "everyday-ai-feelings",
+  "name": "feelings-wheel",
+  "description": "Standalone Feelings Wheel website with multilingual guidance and optional AI matching.",
   "version": "1.0.0",
   "private": true,
   "type": "module",
