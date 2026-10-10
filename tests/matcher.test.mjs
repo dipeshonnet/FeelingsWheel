@@ -84,3 +84,82 @@ test('missing credentials, upstream errors, rate limits and malformed JSON are s
 test('timed-out upstream requests return a retryable response', async () => {
   const response = await matcher((url, { signal }) => new Promise((resolve, reject) => { signal.addEventListener('abort', () => reject(new Error('aborted'))); }), { timeoutMs: 5 })(request()); assert.equal(response.status, 504);
 });
+
+test('oversized streaming bodies are canceled before storage or Groq, without trusting content-length', async () => {
+  for (const contentLength of [null, '10', '12001']) {
+    let canceled = false;
+    let reads = 0;
+    const body = new ReadableStream({
+      pull(controller) { reads++; controller.enqueue(new Uint8Array(6001)); },
+      cancel() { canceled = true; },
+    }, { highWaterMark: 0 });
+    const headers = { 'Content-Type': 'application/json' };
+    if (contentLength) headers['Content-Length'] = contentLength;
+    const input = new Request('https://example.test', { method: 'POST', headers, body, duplex: 'half' });
+    const response = await matcher(() => { assert.fail('must not call Groq'); }, {
+      saveSubmission: () => { assert.fail('must not save'); },
+    })(input);
+    assert.equal(response.status, 413);
+    assert.equal(canceled, true);
+    assert.equal(reads, 2);
+  }
+});
+
+test('body byte limit rejects multibyte overflow and accepts valid text split across chunks', async () => {
+  const encoder = new TextEncoder();
+  const handler = matcher(async () => success({ status: 'clarify', emotionId: null }));
+  const oversized = JSON.stringify({ text: 'worried', padding: '🙂'.repeat(3000) });
+  assert.ok(oversized.length < 12000);
+  const response = await handler(new Request('https://example.test', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: oversized,
+  }));
+  assert.equal(response.status, 413);
+
+  const text = 'मुझे चिंता है 🙂';
+  const bytes = encoder.encode(JSON.stringify({ text }));
+  const body = new ReadableStream({ start(controller) {
+    for (const byte of bytes) controller.enqueue(Uint8Array.of(byte));
+    controller.close();
+  } });
+  let saved;
+  const valid = await matcher(async (url, options) => {
+    assert.equal(JSON.parse(options.body).messages[1].content, text);
+    return success({ status: 'clarify', emotionId: null });
+  }, { saveSubmission: async value => { saved = value; } })(new Request('https://example.test', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body, duplex: 'half',
+  }));
+  assert.equal(valid.status, 200);
+  assert.equal(saved, text);
+});
+
+test('body limit accepts exactly 12000 bytes and rejects one extra byte before side effects', async () => {
+  const base = JSON.stringify({ text: 'worried', padding: '' });
+  let calls = 0;
+  const handler = matcher(async () => { calls++; return success({ status: 'clarify', emotionId: null }); });
+  for (const size of [12000, 12001]) {
+    const raw = JSON.stringify({ text: 'worried', padding: 'x'.repeat(size - base.length) });
+    const response = await handler(new Request('https://example.test', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: raw,
+    }));
+    assert.equal(response.status, size === 12000 ? 200 : 413);
+  }
+  assert.equal(calls, 1);
+});
+
+test('oversized body rejection does not wait for cancellation; stream errors remain safe', async () => {
+  for (const cancel of [() => new Promise(() => {}), () => Promise.reject(new Error('cancel failure'))]) {
+    const body = new ReadableStream({
+      start(controller) { controller.enqueue(new Uint8Array(12001)); }, cancel,
+    });
+    const response = await matcher(() => assert.fail('must not call Groq'))(new Request('https://example.test', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body, duplex: 'half',
+    }));
+    assert.equal(response.status, 413);
+  }
+  const body = new ReadableStream({ start(controller) { controller.error(new Error('private stream detail')); } });
+  const response = await matcher(() => assert.fail('must not call Groq'))(new Request('https://example.test', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body, duplex: 'half',
+  }));
+  assert.equal(response.status, 400);
+  assert.ok(!(await response.text()).includes('private stream detail'));
+});

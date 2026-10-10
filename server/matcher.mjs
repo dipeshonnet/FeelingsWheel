@@ -4,6 +4,31 @@ const catalog = emotions.map(emotion => `${emotion.id} (${emotion.hindi})`).join
 const schema = { type: 'object', properties: { status: { type: 'string', enum: ['match', 'clarify'] }, emotionId: { type: ['string', 'null'], enum: [...emotionById.keys(), null] } }, required: ['status', 'emotionId'], additionalProperties: false };
 const headers = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' };
 const json = (body, status = 200, extra = {}) => new Response(JSON.stringify(body), { status, headers: { ...headers, ...extra } });
+const MAX_BODY_BYTES = 12000;
+
+async function readBody(request) {
+  const reader = request.body?.getReader();
+  if (!reader) return '';
+  const chunks = [];
+  let bytes = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      bytes += value.byteLength;
+      if (bytes > MAX_BODY_BYTES) {
+        // Do not wait for the sender to finish or for cancellation to settle.
+        void reader.cancel().catch(() => {});
+        return null;
+      }
+      if (value.byteLength) chunks.push(value);
+    }
+    const body = new Uint8Array(bytes);
+    let offset = 0;
+    for (const chunk of chunks) { body.set(chunk, offset); offset += chunk.byteLength; }
+    return new TextDecoder().decode(body);
+  } finally { reader.releaseLock(); }
+}
 
 export function createMatcher({ fetchImpl = globalThis.fetch, getKey = () => process.env.GROQ_API_KEY, getModel = () => process.env.GROQ_MODEL || 'openai/gpt-oss-20b', saveSubmission, timeoutMs = 18000 } = {}) {
   return async request => {
@@ -11,8 +36,8 @@ export function createMatcher({ fetchImpl = globalThis.fetch, getKey = () => pro
     if (!request.headers.get('content-type')?.toLowerCase().startsWith('application/json')) return json({ error: 'Please send a JSON description.' }, 415);
     let input;
     try {
-      const raw = await request.text();
-      if (raw.length > 12000) return json({ error: 'Please keep your description to 1,000 characters.' }, 413);
+      const raw = await readBody(request);
+      if (raw === null) return json({ error: 'Please keep your description to 1,000 characters.' }, 413);
       input = JSON.parse(raw);
     } catch { return json({ error: 'We couldn’t read that description. Please try again.' }, 400); }
     if (!input || typeof input.text !== 'string' || !input.text.trim() || input.text.length > 1000) return json({ error: 'Please enter a description between 1 and 1,000 characters.' }, 400);

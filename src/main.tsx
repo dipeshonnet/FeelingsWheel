@@ -66,7 +66,7 @@ function App() {
             <svg width="13" height="15" viewBox="0 0 16 18" fill="none" aria-hidden="true">
               <rect x="3" y="8" width="10" height="8" rx="2" stroke="currentColor" />
               <path d="M5 8V5a3 3 0 0 1 6 0v3" stroke="currentColor" />
-            </svg>Your words are sent to Groq for a match.</p>
+            </svg>Submitted words are sent to Groq and may be saved privately by this site.</p>
         </form>
         <div className={`notice${isError ? ' error' : ''}`} role="status" aria-live="polite">
           {notice}
